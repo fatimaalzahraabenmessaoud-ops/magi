@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Magicator SMC · مؤشر تريدينزا</title>
+<meta name="description" content="Magicator SMC مؤشر TradingView يحدد مناطق السيولة والعرض والطلب وهيكل السوق ويرسل تنبيهًا فوريًا عند منطقة الدخول.">
+<meta name="theme-color" content="#031013">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>:root{--bg:#e8f4f2;--teal:#0f9d92;--teal-b:#2fe0d2;--teal-d:#07524e;--gold:#FFC81A;--gold-d:#b87800;--red:#e0383e;--ink:#04191d;--mut:rgba(4,25,29,.72);--dim:rgba(4,25,29,.52);--line:rgba(7,82,78,.16);--r:26px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px;overflow-x:clip}
+body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative}
+body:before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bgimg) center top/cover no-repeat}
+img{max-width:100%;display:block}.i3{display:block;aspect-ratio:1;background-size:contain;background-repeat:no-repeat;background-position:center;flex:none}a{color:inherit;text-decoration:none}
+.wrap{width:min(1200px,100% - 40px);margin-inline:auto}
+::selection{background:var(--gold);color:#04191d}
+/* glass */
+.glass{background:linear-gradient(145deg,rgba(255,255,255,.80),rgba(255,255,255,.46));border:1px solid rgba(255,255,255,.95);border-radius:var(--r);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(7,82,78,.07),0 34px 60px -34px rgba(7,82,78,.35)}
+.scr{background:linear-gradient(160deg,#0b2d32,#04191d)!important;border:1px solid rgba(255,255,255,.14)!important;color:#fff;box-shadow:0 40px 70px -30px rgba(4,25,29,.6)!important}.scr .cap{color:rgba(255,255,255,.55)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;font:900 17px/1 'Cairo';padding:17px 28px;border-radius:999px;border:0;cursor:pointer;transition:transform .2s,box-shadow .25s,background .25s;white-space:nowrap}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.btn-gold{background:linear-gradient(180deg,#ffd84a,#FFC81A 55%,#f0b300);color:#1a1300;box-shadow:0 10px 30px -8px rgba(255,200,26,.55),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 16px 38px -8px rgba(255,200,26,.7),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-ghost{background:rgba(255,255,255,.6);color:var(--ink);border:1px solid rgba(7,82,78,.25);backdrop-filter:blur(12px)}
+.btn-ghost:hover{background:#fff}
+.btn-dk{background:linear-gradient(180deg,#0f9d92,#07524e);color:#fff;box-shadow:0 10px 24px -10px rgba(7,82,78,.6),inset 0 1px 0 rgba(255,255,255,.3)}.btn-dk:hover{transform:translateY(-2px)}
+/* nav */
+.nav{position:fixed;top:14px;inset-inline:0;z-index:60;display:flex;justify-content:center;pointer-events:none}
+.nav .pill{pointer-events:auto;display:flex;align-items:center;gap:6px;padding:7px 9px 7px 9px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.95);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);box-shadow:0 18px 40px -18px rgba(7,82,78,.4),0 0 0 1px rgba(7,82,78,.08)}
+.nav .logo{padding:0 10px 0 14px;display:flex}.nav .logo .i3{height:36px;aspect-ratio:520/480}
+.nav nav{display:flex;gap:2px}
+.nav nav a{font-weight:700;font-size:15px;padding:9px 16px;border-radius:999px;color:rgba(4,25,29,.78);transition:.2s}
+.nav nav a:hover{color:var(--ink);background:rgba(7,82,78,.08)}
+.nav nav a.on{background:var(--gold);color:#1a1300}
+.nav .btn{padding:11px 22px;font-size:15px;margin-inline-start:10px}
+/* hero */
+.hero{position:relative;padding:150px 0 70px;overflow:hidden;isolation:isolate}
+.hero:before{content:"";position:absolute;inset:-10% -10% auto -10%;height:120%;z-index:-2;background:radial-gradient(55% 50% at 24% 40%,rgba(47,224,210,.30),transparent 70%),radial-gradient(38% 40% at 88% 10%,rgba(255,200,26,.28),transparent 70%)}
+.hero-grid{display:grid;grid-template-columns:.95fr 1.1fr;gap:40px;align-items:center}
+.kicker{display:inline-flex;align-items:center;gap:12px;font-weight:800;font-size:14px;letter-spacing:.02em;color:var(--teal-d)}
+.kicker:before{content:"";width:34px;height:2px;background:linear-gradient(90deg,var(--teal-d),transparent);transform:scaleX(-1)}
+h1{font-weight:900;font-size:clamp(40px,5.3vw,78px);line-height:1.16;letter-spacing:-.01em;margin:18px 0 22px}
+h1 .k{background:linear-gradient(180deg,transparent 80%,rgba(255,200,26,.95) 80%);padding-inline:8px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.lead{font-size:clamp(17px,1.5vw,21px);color:var(--mut);max-width:34em}
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.chips span{font-size:14px;font-weight:700;color:var(--ink);padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.7);border:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.chips span:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal-b)}
+.vis{position:relative;min-height:420px}
+.chartcard{padding:14px 14px 10px;border-radius:30px;transform:perspective(1400px) rotateY(-5deg) rotateX(2deg);transform-origin:center}
+.cc-top{display:flex;align-items:center;justify-content:space-between;padding:4px 10px 10px;direction:ltr}
+.dots{display:flex;gap:6px}.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.22)}.dots i:first-child{background:#ff5a5f}.dots i:nth-child(2){background:#FFC81A}.dots i:nth-child(3){background:#2fe0d2}
+.cc-top b{font:700 12.5px 'Cairo';color:rgba(255,255,255,.5);letter-spacing:.06em}
+.cv{position:relative;direction:ltr}
+.cv svg{display:block;width:100%;height:auto}
+.cv .bellpin{position:absolute;width:11%;aspect-ratio:1;transform:translate(-50%,-62%);pointer-events:none}
+.cv .bellpin .i3{width:100%;animation:ring 1.1s ease-in-out infinite;transform-origin:50% 12%;filter:drop-shadow(0 8px 14px rgba(255,200,26,.45))}
+.cv .bellpin:after,.cv .bellpin:before{content:"";position:absolute;inset:22%;border-radius:50%;border:2px solid var(--gold);opacity:0;animation:ping 1.8s ease-out infinite}.cv .bellpin:before{animation-delay:.9s}
+@keyframes ring{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+@keyframes ping{0%{transform:scale(.5);opacity:.9}100%{transform:scale(2.3);opacity:0}}
+.cap{font-size:13px;color:var(--dim);padding:8px 10px 2px;text-align:center}
+.boximg{position:absolute;left:-18px;bottom:-100px;width:min(150px,28%);filter:drop-shadow(0 30px 34px rgba(4,25,29,.35));animation:fl 7s ease-in-out infinite}
+.ico{position:absolute;pointer-events:none;filter:drop-shadow(0 16px 20px rgba(4,25,29,.3));animation:fl 6s ease-in-out infinite}
+@keyframes fl{0%,100%{translate:0 0}50%{translate:0 -12px}}
+.toast{position:absolute;z-index:3;top:-26px;right:12%;padding:11px 18px 11px 20px;display:flex;align-items:center;gap:10px;font-weight:800;font-size:14.5px;border-radius:999px}
+.toast i{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(255,200,26,.7);animation:pu 1.6s infinite}
+@keyframes pu{70%{box-shadow:0 0 0 12px rgba(255,200,26,0)}100%{box-shadow:0 0 0 0 rgba(255,200,26,0)}}
+/* strip */
+.strip{margin-top:30px}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);padding:6px;border-radius:30px}
+.strip .s{padding:22px 26px;border-inline-start:1px solid var(--line)}.strip .s:first-child{border:0}
+.strip b{display:block;white-space:nowrap;font-weight:900;font-size:clamp(26px,2.9vw,40px);line-height:1.1;background:linear-gradient(180deg,#0f9d92,#07524e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.strip span{font-size:14.5px;color:var(--mut);font-weight:600}
+/* sections */
+.sec{position:relative;overflow-x:clip;padding:clamp(56px,7vw,100px) 0}
+.head{max-width:860px;margin-bottom:46px}.head.c{margin-inline:auto;text-align:center}
+.idx{display:flex;align-items:center;gap:14px;font-weight:800;color:var(--teal-d);font-size:14px;margin-bottom:16px}.head.c .idx{justify-content:center}
+.idx b{font-size:13px;color:#fff;background:var(--teal-d);border-radius:999px;padding:1px 10px}
+h2{font-weight:900;font-size:clamp(32px,4.6vw,64px);line-height:1.24;letter-spacing:-.01em}
+h2 .g{background:linear-gradient(180deg,transparent 80%,rgba(255,200,26,.95) 80%);padding-inline:6px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+h2 .t{background:linear-gradient(100deg,#0f9d92,#07524e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head p{color:var(--mut);font-size:clamp(16px,1.35vw,19px);margin-top:18px;max-width:40em}.head.c p{margin-inline:auto}
+.glow{position:absolute;z-index:-1;border-radius:50%;filter:blur(90px);pointer-events:none}
+/* compare */
+.cmp{position:relative;border-radius:34px;padding:10px;overflow:hidden}
+.cmp .row{display:grid;grid-template-columns:1.1fr 1fr 1.15fr;align-items:center}
+.cmp .row>div{padding:20px 26px}
+.cmp .row+.row{border-top:1px solid var(--line)}
+.cmp .hd{font-weight:800;font-size:14px;color:var(--dim)}
+.cmp .hd.us{color:#04191d;background:linear-gradient(180deg,#3ee8da,#17b9ad);border-radius:18px 18px 0 0;display:flex;align-items:center;gap:10px;font-size:16px;font-weight:900;padding-block:16px}
+.cmp .lb{font-weight:800;font-size:17px}
+.cmp .no{color:var(--dim);display:flex;align-items:center;gap:10px;font-weight:600}
+.cmp .no:before{content:"";width:20px;height:20px;flex:none;border-radius:50%;background:rgba(255,90,95,.16) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M6.5 6.5l7 7M13.5 6.5l-7 7' stroke='%23ff5a5f' stroke-width='2' stroke-linecap='round'/></svg>")}
+.cmp .yes{font-weight:800;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(15,157,146,.13),rgba(15,157,146,.07));border-inline:1px solid rgba(15,157,146,.35)}
+.cmp .row:last-child .yes{border-bottom:1px solid rgba(15,157,146,.35);border-radius:0 0 18px 18px}
+.cmp .yes:before{content:"";width:22px;height:22px;flex:none;border-radius:50%;background:var(--teal) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");box-shadow:0 4px 10px rgba(15,157,146,.4)}
+/* explorer */
+.explorer{display:grid;grid-template-columns:1.55fr 1fr;gap:26px;align-items:start}
+.panel{padding:18px;border-radius:30px}
+.layers{display:flex;flex-direction:column;gap:12px}
+.layer{display:flex;align-items:center;gap:16px;width:100%;text-align:start;color:var(--ink);font-family:inherit;cursor:pointer;padding:16px 18px;border-radius:20px;background:rgba(255,255,255,.6);border:1px solid var(--line);transition:.25s}
+.layer b{display:block;font-size:17px;font-weight:800;line-height:1.4}.layer small{display:block;font-size:13.5px;color:var(--mut);line-height:1.5;margin-top:2px}
+.layer .dot{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 14px var(--c);flex:none}
+.layer .sw{margin-inline-start:auto;width:44px;height:26px;border-radius:99px;background:rgba(4,25,29,.2);position:relative;flex:none;transition:.25s}
+.layer .sw:after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s}
+.layer[aria-pressed=true]{border-color:color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 12%,rgba(255,255,255,.8))}
+.layer[aria-pressed=true] .sw{background:var(--teal)}.layer[aria-pressed=true] .sw:after{inset-inline-start:21px}
+/* bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.f{position:relative;padding:34px 30px 30px;border-radius:30px;overflow:hidden;grid-column:span 2;min-height:250px;transition:transform .3s,border-color .3s}
+.f:hover{transform:translateY(-5px);border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 40px 70px -30px rgba(7,82,78,.45)}
+.f.w{grid-column:span 3;min-height:300px}
+.f .i3{width:92px;height:92px;margin:0 0 12px;filter:drop-shadow(0 12px 14px rgba(4,25,29,.28))}.f.w .i3{width:120px;height:120px}
+.f h3{font-weight:900;font-size:22px;line-height:1.35}.f.w h3{font-size:27px}
+.f .tag{display:block;font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--teal-d);direction:ltr;text-align:start;margin-top:2px}
+.f p{color:var(--mut);font-size:15.5px;margin-top:10px}
+.f:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;inset-inline-end:-90px;top:-100px;background:radial-gradient(closest-side,var(--gl,rgba(47,224,210,.28)),transparent);z-index:-1;opacity:.9}
+.f.y{--gl:rgba(255,200,26,.26)}
+/* filter */
+.fgrid{display:grid;grid-template-columns:1fr 1.1fr;gap:50px;align-items:center}
+.fun{position:relative;height:440px;display:grid;place-items:center}
+.fun .big{width:min(300px,70%);filter:drop-shadow(0 30px 50px rgba(4,25,29,.32));position:relative;z-index:2;animation:fl 7s ease-in-out infinite}
+.fun .halo{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(closest-side,rgba(47,224,210,.45),transparent)}
+.fun .p{position:absolute;top:8%;width:20px;height:20px;border-radius:50%;z-index:3;animation:drop 4.2s infinite cubic-bezier(.5,0,.6,1)}
+.fun .p.g{background:var(--gold);box-shadow:0 0 18px var(--gold)}.fun .p.b{background:var(--red);box-shadow:0 0 18px var(--red)}
+.fun .p.b{animation-name:dropb}
+@keyframes drop{0%{transform:translate(var(--x),0);opacity:0}12%{opacity:1}55%{transform:translate(var(--x),150px)}85%{transform:translate(0,290px) scale(.9);opacity:1}100%{transform:translate(0,330px) scale(.4);opacity:0}}
+@keyframes dropb{0%{transform:translate(var(--x),0);opacity:0}12%{opacity:1}55%{transform:translate(var(--x),150px);opacity:1}70%{transform:translate(calc(var(--x)*1.9),190px) rotate(60deg);opacity:0}100%{opacity:0}}
+.fl{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 22px}.fl span{font-weight:800;font-size:14.5px;padding:9px 18px;border-radius:999px;background:rgba(15,157,146,.12);border:1px solid rgba(15,157,146,.4);color:var(--teal-d);direction:ltr}
+.ticks li{list-style:none;display:flex;gap:12px;align-items:flex-start;margin:12px 0;color:var(--ink);font-weight:600}
+.ticks li:before{content:"";flex:none;margin-top:5px;width:20px;height:20px;border-radius:50%;background:var(--teal) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/></svg>")}
+/* risk */
+.risk{display:grid;grid-template-columns:.8fr 1.4fr;gap:26px;align-items:stretch;padding:30px;border-radius:36px;position:relative;overflow:hidden}
+.risk .rl{display:flex;flex-direction:column;justify-content:center}
+.risk .ri{position:relative;display:grid;place-items:center;min-height:240px}
+.risk .ri .i3{width:min(200px,70%);position:relative;z-index:1;filter:drop-shadow(0 26px 34px rgba(4,25,29,.3));animation:fl 7s ease-in-out infinite}
+.risk .ri:before{content:"";position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,200,26,.30),transparent)}
+.rk4{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:stretch}
+.rk4 div{padding:20px 22px;border-radius:22px;background:rgba(255,255,255,.7);border:1px solid var(--line)}
+.rk4 .m{display:inline-block;font:900 13px 'Cairo';letter-spacing:.06em;color:#1a1300;background:var(--gold);padding:2px 12px;border-radius:99px;margin-bottom:10px;direction:ltr}
+.rk4 b{display:block;font-weight:800;font-size:17px}.rk4 small{color:var(--mut);font-size:14px;display:block;margin-top:2px}
+/* markets */
+.mkwrap{display:grid;grid-template-columns:1.25fr 1fr;gap:34px;align-items:center}
+.mkrow{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 18px}
+.mkrow span{font-weight:800;padding:12px 22px;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid var(--line)}
+.tfs{display:flex;flex-wrap:wrap;gap:8px;direction:ltr;justify-content:flex-end}.tfs span{font-weight:800;font-size:14px;padding:8px 15px;border-radius:12px;background:rgba(255,255,255,.75);color:var(--ink);border:1px solid var(--line)}.tfs .on{background:var(--gold);color:#1a1300;border-color:var(--gold)}
+.defn{color:var(--dim);font-size:14px;margin-top:14px}
+.mkimg{position:relative;height:330px;display:grid;place-items:center}
+.mkimg .i3{position:absolute;filter:drop-shadow(0 24px 30px rgba(4,25,29,.3));animation:fl 6.5s ease-in-out infinite}.mkimg .a{width:50%;inset-inline-start:2%;top:2%}.mkimg .b{width:34%;inset-inline-end:2%;bottom:0;animation-delay:-3s}
+/* published result */
+.pub{max-width:880px;margin-inline:auto;padding:38px;border-radius:34px;text-align:center}
+.pub .lab{display:inline-block;font-weight:800;font-size:13.5px;color:var(--gold-d);border:1px solid rgba(184,120,0,.45);padding:4px 16px;border-radius:99px;margin-bottom:16px}
+.pub h3{font-weight:900;font-size:clamp(24px,3vw,36px);line-height:1.3}
+.pub p{color:var(--mut);margin:12px auto 26px;max-width:38em;font-size:15.5px}
+.pt{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;direction:ltr}
+.pt div{padding:16px 8px;border-radius:18px;background:rgba(255,255,255,.75);border:1px solid var(--line)}
+.pt small{display:block;font-weight:800;font-size:12.5px;letter-spacing:.06em;color:var(--dim)}.pt b{display:block;font-size:34px;font-weight:900;line-height:1.2}.pt em{font-style:normal;font-weight:700;font-size:13px;color:var(--dim)}
+.pt .t1 b{color:#0e8fb0}.pt .t2 b{color:#0a8278}.pt .t3 b{color:#079669}.pt .sl b{color:var(--red)}
+.pub .fine{font-size:13px;color:var(--dim);margin:20px auto 0}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.st3{position:relative;padding:30px 28px 30px;border-radius:30px;overflow:hidden}
+.st3 .n{position:absolute;top:14px;inset-inline-end:22px;font-weight:900;font-size:78px;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(7,82,78,.22)}
+.st3 .i3{width:86px;height:86px;margin:0 0 14px;filter:drop-shadow(0 12px 16px rgba(4,25,29,.28))}
+.st3 h3{font-weight:900;font-size:21px}.st3 p{color:var(--mut);font-size:15.5px;margin-top:8px}
+/* plans */
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-items:stretch}
+.plan{position:relative;padding:34px 26px 28px;border-radius:30px;display:flex;flex-direction:column;transition:transform .3s}
+.plan:hover{transform:translateY(-4px)}
+.plan .i3{width:84px;height:84px;margin:-10px 0 6px;filter:drop-shadow(0 12px 14px rgba(4,25,29,.28))}
+.plan h3{font-weight:900;font-size:26px;line-height:1.2}.plan .sub{color:var(--mut);font-size:14.5px;min-height:1.7em}
+.plan .pr{display:flex;align-items:flex-end;gap:8px;margin:18px 0 6px;flex-wrap:nowrap}
+.plan .num{font-weight:900;font-size:52px;line-height:.9;letter-spacing:-.02em}.plan .num small{font-size:.38em;vertical-align:top;color:var(--gold-d);margin-inline-end:3px}
+.plan .old{color:var(--dim);text-decoration:line-through;font-weight:700;font-size:15px;padding-bottom:5px}
+.plan .off{align-self:flex-start;font-weight:900;font-size:12px;color:#fff;background:var(--teal);padding:2px 9px;white-space:nowrap;border-radius:99px}
+.plan .per{font-weight:800;color:var(--teal-d);font-size:15.5px;min-height:1.7em}
+.plan ul{list-style:none;margin:18px 0 24px}.plan li{display:flex;gap:10px;margin:8px 0;font-weight:700;font-size:15px}
+.plan li:before{content:"";flex:none;margin-top:4px;width:18px;height:18px;border-radius:50%;background:var(--teal) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/></svg>")}
+.plan .btn{margin-top:auto;justify-content:center;width:100%;padding:16px 18px}
+.plan.rec{border:2px solid var(--gold)!important;background:linear-gradient(160deg,rgba(255,240,190,.95),rgba(255,255,255,.7))!important;transform:translateY(-10px);box-shadow:0 0 0 6px rgba(255,200,26,.22),0 50px 80px -34px rgba(184,120,0,.5)!important}
+.plan.rec:hover{transform:translateY(-14px)}
+.plan .rib{position:absolute;top:-15px;inset-inline-start:24px;font-weight:900;font-size:13.5px;padding:4px 16px;border-radius:99px;background:var(--gold);color:#1a1300;box-shadow:0 8px 18px -6px rgba(184,120,0,.6)}
+.pay{text-align:center;color:var(--dim);font-size:14px;margin-top:34px}.pay b{color:var(--ink)}
+.incl{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
+.incl span{font-weight:700;font-size:14.5px;padding:10px 20px;border-radius:99px;background:rgba(255,255,255,.7);border:1px solid var(--line)}
+.incl span:before{content:"✓";color:var(--teal);font-weight:900;margin-inline-end:8px}
+/* faq */
+.faqw{max-width:900px;margin-inline:auto}
+details{border-radius:22px;background:rgba(255,255,255,.62);border:1px solid var(--line);margin-bottom:12px;overflow:hidden;transition:.25s}
+details[open]{background:rgba(255,255,255,.9);border-color:rgba(15,157,146,.45)}
+summary{list-style:none;cursor:pointer;padding:20px 26px;font-weight:800;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";font-size:28px;font-weight:400;color:var(--gold-d);transition:.25s;line-height:1}
+details[open] summary:after{transform:rotate(45deg)}
+details p{padding:0 26px 22px;color:var(--mut);font-size:16px}
+/* final */
+.final{padding-bottom:110px}
+.fin{position:relative;overflow:hidden;border-radius:44px;padding:clamp(46px,7vw,86px) 30px;text-align:center;background:radial-gradient(70% 90% at 50% 0%,rgba(47,224,210,.35),transparent 70%),radial-gradient(40% 60% at 90% 100%,rgba(255,200,26,.35),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.55));border:1px solid #fff;box-shadow:0 40px 70px -34px rgba(7,82,78,.4)}
+.fin .i3{width:120px;margin:-10px auto 14px;filter:drop-shadow(0 26px 30px rgba(4,25,29,.3));animation:fl 6s ease-in-out infinite}
+.fin h2{max-width:14em;margin-inline:auto}.fin p{color:var(--mut);max-width:36em;margin:18px auto 30px;font-size:18px}
+.fin .btn{font-size:20px;padding:20px 40px}
+footer{padding:46px 0 120px;border-top:1px solid var(--line);color:var(--dim);font-size:13.5px}
+footer .brand{display:flex;align-items:center;gap:12px;color:var(--ink);font-weight:800;margin-bottom:14px}footer .brand .i3{height:42px;aspect-ratio:520/480}
+footer p{max-width:62em;margin:6px 0}footer .em{color:var(--teal-d);font-weight:800;direction:ltr;display:inline-block}
+#sticky{position:fixed;inset-inline:14px;bottom:14px;z-index:70;display:none;align-items:center;justify-content:space-between;gap:12px;padding:9px 9px 9px 18px;border-radius:999px;background:rgba(255,255,255,.88);backdrop-filter:blur(18px);border:1px solid #fff;box-shadow:0 20px 40px -12px rgba(7,82,78,.5);transform:translateY(140%);transition:transform .35s}
+#sticky.show{transform:none}#sticky b{font-weight:900;font-size:15px}#sticky .btn{padding:13px 24px;font-size:15px}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s,transform .8s cubic-bezier(.2,.7,.2,1)}.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.rv{opacity:1;transform:none;transition:none}}
+/* responsive */
+@media(max-width:1020px){
+ .strip{grid-template-columns:1fr 1fr}
+ .nav nav{display:none}.hero{padding-top:120px}
+ .hero-grid,.explorer,.fgrid,.risk,.mkwrap,.pl{grid-template-columns:1fr}
+ .vis{margin-top:30px}.chartcard{transform:none}.boximg{left:-6px;width:30%;bottom:-40px}
+ .strip .s:nth-child(3){border-inline-start:0}.strip .s:nth-child(n+3){border-top:1px solid var(--line)}
+ .bento{grid-template-columns:1fr 1fr}.f,.f.w{grid-column:span 1;min-height:0}.f.w:first-child{grid-column:1/-1}
+ .steps{grid-template-columns:1fr}.fun{height:360px}.pgrid{grid-template-columns:1fr 1fr}.tfs{justify-content:flex-start}
+}
+@media(max-width:700px){
+ .wrap{width:calc(100% - 32px)}.nav .btn{padding:10px 18px;font-size:14px}.nav .logo .i3{height:32px}
+ h1{font-size:clamp(38px,11.5vw,56px)}
+ .cmp .row{grid-template-columns:1fr 1fr}.cmp .row>div{padding:15px 14px}.cmp .lb{grid-column:1/-1;background:rgba(255,255,255,.04);padding-block:11px;font-size:15px}.cmp .hd.lb{display:none}
+ .cmp .hd.us{border-radius:14px 14px 0 0}.cmp .yes,.cmp .no{font-size:14px}
+ .bento{grid-template-columns:1fr}.f.w:first-child{grid-column:auto}.f .i3{width:96px;height:96px}.f.w .i3{width:110px;height:110px}
+ .rk4{grid-template-columns:1fr}.risk{padding:20px}
+ .pt{grid-template-columns:repeat(3,1fr)}.pt b{font-size:28px}
+ .pgrid{grid-template-columns:1fr}.plan.rec{transform:none}.plan.rec:hover{transform:none}.plan .rib{inset-inline-start:20px}
+ #sticky{display:flex}.final{padding-bottom:130px}.toast{right:4%;font-size:13px}
+ .layer small{display:none}.ico{display:none}.vis{margin-bottom:84px}.boximg{width:26%;left:6px;bottom:-96px}.cv .bellpin{width:15%}.strip .s{padding:16px 16px}
+ summary{font-size:16px;padding:17px 18px}details p{padding:0 18px 18px}
+}
+
+.shot{margin:0 auto;max-width:620px}.shot img{width:100%;border-radius:18px;border:1px solid rgba(4,25,29,.35);box-shadow:0 24px 50px -24px rgba(4,25,29,.55)}.shot figcaption{font-size:13px;color:var(--dim);margin-top:10px}
+.wa{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:#fff!important;background:#1faa59;padding:10px 20px;border-radius:99px;box-shadow:0 10px 22px -10px rgba(31,170,89,.7);transition:.2s}.wa:hover{transform:translateY(-2px);background:#18964c}
+.i-bell{background-image:url("assets/i_bell.webp")}.i-bolt{background-image:url("assets/i_bolt.webp")}.i-candles_t{background-image:url("assets/i_candles_t.webp")}.i-card{background-image:url("assets/i_card.webp")}.i-chat{background-image:url("assets/i_chat.webp")}.i-crown{background-image:url("assets/i_crown.webp")}.i-funnel{background-image:url("assets/i_funnel.webp")}.i-gem_y{background-image:url("assets/i_gem_y.webp")}.i-globe{background-image:url("assets/i_globe.webp")}.i-hourglass{background-image:url("assets/i_hourglass.webp")}.i-layers{background-image:url("assets/i_layers.webp")}.i-refresh{background-image:url("assets/i_refresh.webp")}.i-shield{background-image:url("assets/i_shield.webp")}.i-sliders{background-image:url("assets/i_sliders.webp")}.i-star_t{background-image:url("assets/i_star_t.webp")}.i-structure{background-image:url("assets/i_structure.webp")}.i-target_y{background-image:url("assets/i_target_y.webp")}.i-logo{background-image:url("assets/logo.webp");aspect-ratio:520/480}body{--bgimg:url("assets/bg.jpg")}</style></head><body>
+<div class="nav"><div class="pill">
+ <a class="logo" href="#top" aria-label="تريدينزا"><span class="i3 i-logo " role="img" aria-label="Tradenza"></span></a>
+ <nav id="navl"><a href="#compare">المقارنة</a><a href="#how">كيف يشتغل</a><a href="#features">المزايا</a><a href="#plans">الباقات</a><a href="#faq">أسئلة</a></nav>
+ <a class="btn btn-gold" href="https://tradenza.io/product/magicator-smc-year/" target="_blank" rel="noopener">اطلب المؤشر</a>
+</div></div>
+
+<main id="top">
+<!-- HERO -->
+<section class="hero">
+ <div class="wrap hero-grid">
+  <div class="copy">
+   <span class="kicker">Magicator SMC · مؤشر TradingView</span>
+   <h1>ادخل الصفقة وأنت تشوف السوق <span class="k">بعيون المؤسسات</span></h1>
+   <p class="lead">مؤشر يحدد لك مناطق السيولة والعرض والطلب وهيكل السوق على الشارت، ويرسل لك تنبيهًا فوريًا عند منطقة الدخول في نفس اللحظة.</p>
+   <div class="cta-row">
+    <a class="btn btn-gold" href="https://tradenza.io/product/magicator-smc-year/" target="_blank" rel="noopener">احصل على المؤشر <svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+    <a class="btn btn-ghost" href="#how">شوف كيف يشتغل</a>
+   </div>
+   <div class="chips"><span>يعمل على TradingView</span><span>تنبيهات فورية</span><span>دعم مباشر</span><span>ذهب · فوركس · كريبتو · أسهم</span></div>
+  </div>
+  <div class="vis">
+   <div class="toast glass"><i></i>تنبيه فوري · منطقة دخول الآن</div>
+   <div class="chartcard glass scr">
+    <div class="cc-top"><div class="dots"><i></i><i></i><i></i></div><b>XAUUSD · 5m</b></div>
+    <div class="cv" id="cv-hero"><svg id="chart-hero" viewBox="0 50 920 450" role="img" aria-label="شارت توضيحي يظهر مناطق السيولة والأوردر بلوك وهيكل السوق وخطة الصفقة"></svg><div class="bellpin" data-x="27.2" data-y="59.6"><span class="i3 i-bell " aria-hidden="true"></span></div></div>
+    <p class="cap">رسم توضيحي للفكرة وليس سعرًا حقيقيًا</p>
+   </div>
+   <img class="boximg" src="assets/box.webp" alt="علبة مؤشر Magicator SMC">
+   <span class="i3 i-target_y ico" style="width:84px;bottom:-34px;right:-18px;animation-delay:-2s" aria-hidden="true"></span>
+  </div>
+ </div>
+ <div class="strip wrap glass" style="margin-top:56px">
+  <div class="s"><b>5</b><span>فلاتر تحليل مدمجة</span></div>
+  <div class="s"><b>5</b><span>أسواق مدعومة</span></div>
+  <div class="s"><b>فوري</b><span>تنبيه عند تحقق شروط الدخول</span></div>
+  <div class="s"><b>كل الفريمات</b><span>من الدقيقة إلى اليومي</span></div>
+ </div>
+</section>
+
+<!-- COMPARE -->
+<section class="sec" id="compare">
+ <div class="wrap">
+  <div class="head rv"><div class="idx"><b>01</b>الفرق</div>
+   <h2>تحليل يدوي ولا <span class="t">Magicator SMC</span></h2>
+   <p>نفس الشارت، ونفس المتداول. الفرق في كم تشوف وتقرر بدون تعب وتخمين.</p></div>
+  <div class="cmp glass rv">
+   <div class="row"><div class="hd lb"></div><div class="hd">بدون مؤشر</div><div class="hd us"><span class="i3 i-logo " style="height:24px;width:auto;filter:none" aria-hidden="true"></span>مع Magicator SMC</div></div>
+   <div class="row"><div class="lb">مناطق السيولة</div><div class="no">تحددها يدويًا وبجهد</div><div class="yes">مرسومة تلقائيًا على الشارت</div></div>
+   <div class="row"><div class="lb">العرض والطلب</div><div class="no">اجتهاد شخصي</div><div class="yes">أوردر بلوكس حجمية</div></div>
+   <div class="row"><div class="lb">فلترة الإشارات</div><div class="no">حسب المزاج، وإشارات كاذبة وقت التذبذب</div><div class="yes">5 فلاتر تقلل الدخول الخاطئ</div></div>
+   <div class="row"><div class="lb">توقيت الدخول</div><div class="no">تراقب الشاشة وتدخل متأخر</div><div class="yes">يوصلك إشعار لحظة تحقق الشروط</div></div>
+   <div class="row"><div class="lb">الوقف والأهداف</div><div class="no">تحسبها كل صفقة من الصفر</div><div class="yes">جاهزة وقابلة للتعديل</div></div>
+  </div>
+ </div>
+</section>
+
+<!-- HOW -->
+<section class="sec" id="how">
+ <div class="glow" style="width:520px;height:520px;background:rgba(15,157,146,.30);left:-200px;top:20%"></div>
+ <div class="wrap">
+  <div class="head rv"><div class="idx"><b>02</b>كيف يشتغل</div>
+   <h2>شوف على الشارت <span class="g">اللي يرسمه لك المؤشر</span></h2>
+   <p>فعّل وعطّل كل طبقة بنفسك، وشوف كيف يتحول الشارت من شموع عادية إلى خريطة قرار.</p></div>
+  <div class="explorer">
+   <div class="panel glass scr rv"><div class="cv" id="cv-main"><svg id="chart-main" viewBox="0 50 920 450" role="img" aria-label="شارت تفاعلي توضيحي"></svg><div class="bellpin L-al" data-x="27.2" data-y="59.6"><span class="i3 i-bell " aria-hidden="true"></span></div></div>
+    <p class="cap">رسم توضيحي للفكرة، وليس سعرًا حقيقيًا ولا نتيجة فعلية.</p></div>
+   <div class="layers rv" id="layers">
+    <button class="layer" data-l="liq" aria-pressed="true" style="--c:#FFC81A"><span class="dot"></span><span><b>مناطق السيولة</b><small>وين تتجمع الأوامر، وين يبغى السعر يروح.</small></span><span class="sw"></span></button>
+    <button class="layer" data-l="ob" aria-pressed="true" style="--c:#FFC81A"><span class="dot"></span><span><b>أوردر بلوكس حجمية</b><small>تكشف الأوردر بلوك الحقيقي وفق الحجم.</small></span><span class="sw"></span></button>
+    <button class="layer" data-l="ms" aria-pressed="true" style="--c:#07524e"><span class="dot"></span><span><b>هيكل السوق</b><small>Swing · ChoCh · BoS في مكانها.</small></span><span class="sw"></span></button>
+    <button class="layer" data-l="tr" aria-pressed="true" style="--c:#2fe0d2"><span class="dot"></span><span><b>الدخول والوقف والأهداف</b><small>SL · TP1 · TP2 · TP3 مرسومة قبل الدخول.</small></span><span class="sw"></span></button>
+    <button class="layer" data-l="al" aria-pressed="true" style="--c:#FFC81A"><span class="dot"></span><span><b>تنبيه الدخول</b><small>يوصلك الإشعار لحظة تحقق الشروط.</small></span><span class="sw"></span></button>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- FEATURES -->
+<section class="sec" id="features">
+ <div class="glow" style="width:560px;height:560px;background:rgba(255,200,26,.10);right:-180px;top:30%"></div>
+ <div class="wrap">
+  <div class="head rv"><div class="idx"><b>03</b>داخل المؤشر</div>
+   <h2>مو مؤشر واحد، <span class="t">غرفة تحليل كاملة</span> على شارتك</h2>
+   <p>كل ميزة هنا تشتغل مع الثانية: تحليل مؤسسي، فلترة، إدارة مخاطر، وتنبيهات.</p></div>
+  <div class="bento">
+   <article class="f w y glass rv"><span class="i3 i-layers " aria-hidden="true"></span><h3>أوردر بلوكس حجمية <span class="tag">Volumetric Order Blocks</span></h3><p>يحدد مناطق العرض والطلب بأسلوب المؤسسات ويربطها بالحجم، فتعرف وين الثقل الحقيقي وتتجنب المناطق الضعيفة.</p></article>
+   <article class="f w glass rv"><span class="i3 i-structure " aria-hidden="true"></span><h3>هيكل السوق <span class="tag">Swing · ChoCh · BoS</span></h3><p>يقرأ القمم والقيعان وكسر الهيكل وتغيّر الاتجاه، وتشوف كل ذلك مرسومًا أمامك بدون تخمين.</p></article>
+   <article class="f y glass rv"><span class="i3 i-target_y " aria-hidden="true"></span><h3>مستويات السيولة</h3><p>يرسم المستويات اللي تتجمع عندها أوامر الوقف، وغالبًا هناك يتحرك السعر.</p></article>
+   <article class="f glass rv"><span class="i3 i-funnel " aria-hidden="true"></span><h3>فلترة قوية للإشارات</h3><p>ADX · ATR · RSI · TEMA · NEON Trend تعمل معًا لتمنع الدخول الخاطئ أثناء التذبذب.</p></article>
+   <article class="f y glass rv"><span class="i3 i-shield " aria-hidden="true"></span><h3>إدارة مخاطر كاملة</h3><p>تحكم كامل في الوقف والأهداف مع Break-even · Trailing Stop، ونسبة المخاطرة للعائد تحددها أنت.</p></article>
+   <article class="f glass rv"><span class="i3 i-refresh " aria-hidden="true"></span><h3>إعادة دخول ذكية</h3><p>لو رجع السعر لمنطقة سيولة عالية، يعيد الدخول بهدف ووقف مستقلين لكل إعادة دخول.</p></article>
+   <article class="f y glass rv"><span class="i3 i-bell " aria-hidden="true"></span><h3>تنبيهات فورية</h3><p>إشعار لحظي عند تحقق شروط الدخول أو الخروج، فلا تحتاج تجلس قدام الشاشة.</p></article>
+   <article class="f glass rv"><span class="i3 i-sliders " aria-hidden="true"></span><h3>تخصيص بسيط</h3><p>أي ميزة تفعّلها أو تطفيها من واجهة إعدادات سهلة، فيتحول المؤشر لأسلوبك أنت.</p></article>
+  </div>
+ </div>
+</section>
+
+<!-- FILTER -->
+<section class="sec">
+ <div class="glow" style="width:560px;height:560px;background:rgba(15,157,146,.28);left:-160px;top:10%"></div>
+ <div class="wrap fgrid">
+  <div class="fun rv">
+   <div class="halo"></div>
+   <i class="p g" style="--x:-80px;left:50%;animation-delay:0s"></i><i class="p b" style="--x:110px;left:50%;animation-delay:.8s"></i><i class="p g" style="--x:60px;left:50%;animation-delay:1.6s"></i><i class="p b" style="--x:-120px;left:50%;animation-delay:2.4s"></i><i class="p g" style="--x:-30px;left:50%;animation-delay:3.2s"></i>
+   <span class="i3 i-funnel big" aria-hidden="true"></span>
+  </div>
+  <div class="rv">
+   <div class="idx"><b>04</b>الفلترة</div>
+   <h2>الإشارة الضعيفة <span class="g">ما توصل لك أصلًا</span></h2>
+   <p style="color:var(--mut);font-size:18px;margin-top:16px">كل إشارة تمر على خمس طبقات فحص قبل ما تظهر على شارتك. اللي ما يجتاز، ينحجب.</p>
+   <div class="fl"><span>ADX</span><span>ATR Volatility</span><span>RSI</span><span>TEMA</span><span>NEON Trend</span></div>
+   <ul class="ticks">
+    <li>يقلل الدخول الخاطئ في السوق المتذبذب</li>
+    <li>يقيس قوة الاتجاه وتقلب السعر قبل الإشارة</li>
+    <li>تقدر تفعّل أو تعطّل أي فلتر حسب أسلوبك</li>
+   </ul>
+  </div>
+ </div>
+</section>
+
+<!-- RISK -->
+<section class="sec" style="padding-top:20px">
+ <div class="wrap">
+  <div class="risk glass rv">
+   <div class="rl"><div class="idx"><b>05</b>إدارة المخاطر</div>
+    <h2 style="font-size:clamp(30px,3.6vw,50px)">كل صفقة لها <span class="g">خطة قبل ما تبدأ</span></h2>
+    <p style="color:var(--mut);margin-top:14px">المؤشر ما يعطيك دخولًا فقط. يرسم لك الوقف والأهداف، وتتحكم أنت في كل رقم.</p>
+    <div class="ri" style="margin-top:10px"><span class="i3 i-shield " aria-hidden="true"></span></div></div>
+   <div class="rk4" style="align-content:center">
+    <div><span class="m">SL</span><b>وقف الخسارة</b><small>مستوى محدد قبل الدخول، قابل للتعديل.</small></div>
+    <div><span class="m">TP</span><b>أهداف متعددة</b><small>TP1 · TP2 · TP3 مرسومة على الشارت.</small></div>
+    <div><span class="m">BE</span><b>Break-even · Trailing Stop</b><small>فعّلهما إذا حبيت تحمي الصفقة وهي تتحرك.</small></div>
+    <div><span class="m">R:R</span><b>نسبة المخاطرة للعائد</b><small>تضبطها بحسب خطتك أنت.</small></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- MARKETS -->
+<section class="sec" style="padding-top:20px">
+ <div class="wrap mkwrap">
+  <div class="rv"><div class="idx"><b>06</b>التوافق</div>
+   <h2>أي سوق، أي فريم، <span class="t">أي أسلوب</span></h2>
+   <p style="color:var(--mut);font-size:18px;margin-top:14px">سكالبينج أو سوينج، المؤشر يشتغل على كل الفريمات الزمنية.</p>
+   <div class="mkrow"><span>الذهب XAUUSD</span><span>فوركس</span><span>المؤشرات</span><span>الأسهم</span><span>الكريبتو</span></div>
+   <div class="tfs"><span>1m</span><span>5m</span><span class="on">5m · افتراضي</span><span>15m</span><span>1H</span><span>4H</span><span>1D</span></div>
+   <p class="defn">الإعداد الافتراضي: الذهب XAUUSD على فريم 5 دقائق، وتقدر تغيّره لأي سوق وفريم.</p></div>
+  <div class="mkimg rv"><span class="i3 i-globe a" aria-hidden="true"></span><span class="i3 i-hourglass b" aria-hidden="true"></span></div>
+ </div>
+</section>
+
+<!-- PUBLISHED RESULT -->
+<section class="sec" style="padding-top:20px">
+ <div class="wrap">
+  <div class="pub glass rv">
+   <span class="lab">من النتائج المنشورة</span>
+   <h3>هذه واحدة من النتائج التي حققناها ونشرناها</h3>
+   <p>نعرضها كمثال على كيف تُقرأ النتائج على TradingView. هي لا تمثل نتيجة المؤشر كاملة، ولا تضمن نتائج مستقبلية، وتشمل الصفقات التي ضربت وقف الخسارة.</p>
+   <figure class="shot"><img src="assets/result.jpg" alt="لقطة من TradingView لجدول النتائج: Total 53، TP1 36، TP2 30، TP3 21، SL 17"><figcaption>لقطة حقيقية من TradingView، بدون أي تعديل</figcaption></figure>
+   <p class="fine">التداول ينطوي على مخاطر، وقد تخسر جزءًا من رأس مالك أو كله.</p>
+  </div>
+ </div>
+</section>
+
+<!-- ACTIVATION -->
+<section class="sec" style="padding-top:20px">
+ <div class="wrap">
+  <div class="head rv"><div class="idx"><b>07</b>طريقة التفعيل</div>
+   <h2>من الدفع إلى الشارت <span class="g">في ثلاث خطوات</span></h2>
+   <p>ما تحتاج خبرة تقنية. نحن معك في كل خطوة.</p></div>
+  <div class="steps">
+   <div class="st3 glass rv"><span class="n">1</span><span class="i3 i-card " aria-hidden="true"></span><h3>اختر باقتك وادفع</h3><p>أتمم الدفع بأمان من موقع تريدينزا الرسمي.</p></div>
+   <div class="st3 glass rv"><span class="n">2</span><span class="i3 i-chat " aria-hidden="true"></span><h3>تواصل مع الدعم</h3><p>أرسل لفريق الدعم اسم حسابك في TradingView، ويفعّل لك المؤشر على حسابك.</p><a class="wa" href="https://wa.me/447400751869" target="_blank" rel="noopener" style="margin-top:16px"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.300 2.400 1.5.3.1.5.1.7-.1l1-1.200c.2-.3.4-.2.7-.1l1.900.9c.3.1.5.2.5.3.1.2.1.8-.100 1.300z"/></svg> راسلنا على واتساب</a></div>
+   <div class="st3 glass rv"><span class="n">3</span><span class="i3 i-candles_t " aria-hidden="true"></span><h3>أضفه للشارت وابدأ</h3><p>أضف المؤشر من قائمة مؤشراتك، واضبط الإعدادات أو اترك الافتراضي، وتصلك أول تنبيهات.</p></div>
+  </div>
+ </div>
+</section>
+
+<!-- PLANS -->
+<section class="sec" id="plans">
+ <div class="glow" style="width:600px;height:600px;background:rgba(255,200,26,.16);right:-220px;top:10%"></div>
+ <div class="wrap">
+  <div class="head rv"><div class="idx"><b>08</b>الباقات</div>
+   <h2>كل المزايا في كل الباقات، <span class="g">والفرق في المدة فقط</span></h2>
+   <p>نفس المؤشر ونفس الدعم. كلما طالت المدة نزل سعر الشهر.</p></div>
+  <div class="pgrid rv"><article class="plan glass"><span class="i3 i-bolt " aria-hidden="true"></span><h3>شهر واحد</h3><div class="sub">للتجربة بدون التزام</div><div class="pr"><div class="num"><small>$</small>50</div><div class="old">$80</div><span class="off">وفّر 38%</span></div><div class="per">$50 / شهر</div><ul><li>كل مزايا المؤشر كاملة</li><li>تنبيهات فورية</li><li>دعم مباشر</li></ul><a class="btn btn-dk" href="https://tradenza.io/product/month-1-magicator-smc/" target="_blank" rel="noopener">اشترك بباقة الشهر</a></article><article class="plan glass"><span class="i3 i-gem_y " aria-hidden="true"></span><h3>3 شهور</h3><div class="sub">وقت كافٍ لتشوف النتائج</div><div class="pr"><div class="num"><small>$</small>135</div><div class="old">$219</div><span class="off">وفّر 38%</span></div><div class="per">$45 / شهر</div><ul><li>كل مزايا المؤشر كاملة</li><li>تنبيهات فورية</li><li>دعم مباشر</li></ul><a class="btn btn-dk" href="https://tradenza.io/product/months-magicator-smc-3/" target="_blank" rel="noopener">اشترك بباقة 3 شهور</a></article><article class="plan glass rec"><span class="rib">الباقة الموصى بها</span><span class="i3 i-star_t " aria-hidden="true"></span><h3>سنة كاملة</h3><div class="sub">للمتداول المنتظم</div><div class="pr"><div class="num"><small>$</small>420</div><div class="old">$750</div><span class="off">وفّر 44%</span></div><div class="per">$35 / شهر فقط</div><ul><li>كل مزايا المؤشر كاملة</li><li>تنبيهات فورية</li><li>دعم مباشر</li></ul><a class="btn btn-gold" href="https://tradenza.io/product/magicator-smc-year/" target="_blank" rel="noopener">اشترك بباقة السنة</a></article><article class="plan glass"><span class="i3 i-crown " aria-hidden="true"></span><h3>مدى الحياة</h3><div class="sub">دفعة واحدة، بدون تجديد</div><div class="pr"><div class="num"><small>$</small>490</div><div class="old">$950</div><span class="off">وفّر 48%</span></div><div class="per">دفعة واحدة بدون تجديد</div><ul><li>كل مزايا المؤشر كاملة</li><li>تنبيهات فورية</li><li>دعم مباشر</li></ul><a class="btn btn-dk" href="https://tradenza.io/product/magicator-smc-life-time/" target="_blank" rel="noopener">خذ باقة مدى الحياة</a></article></div>
+  <div class="incl rv"><span>مؤشر كامل بكل المزايا</span><span>تنبيهات فورية</span><span>إدارة مخاطر قابلة للتخصيص</span><span>تحديثات شهرية</span><span>دعم مباشر</span></div>
+  <p class="pay rv" style="margin-top:26px"><a class="wa" href="https://wa.me/447400751869?text=%D9%85%D8%B1%D8%AD%D8%A8%D9%8B%D8%A7%D8%8C%20%D8%B9%D9%86%D8%AF%D9%8A%20%D8%B3%D8%A4%D8%A7%D9%84%20%D8%B9%D9%86%20%D9%85%D8%A4%D8%B4%D8%B1%20Magicator%20SMC" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.300 2.400 1.5.3.1.5.1.7-.1l1-1.200c.2-.3.4-.2.7-.1l1.900.9c.3.1.5.2.5.3.1.2.1.8-.100 1.300z"/></svg> عندك سؤال قبل الاشتراك؟ راسلنا على واتساب</a></p>
+  <p class="pay rv">الدفع الإلكتروني عبر <b>Visa · Mastercard · PayPal · مدى</b> من موقع تريدينزا الرسمي.</p>
+ </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq" style="padding-top:20px">
+ <div class="wrap">
+  <div class="head c rv"><div class="idx"><b>09</b>أسئلة تتكرر</div><h2>قبل ما تقرر، <span class="t">اسأل</span></h2></div>
+  <div class="faqw rv">
+   <details><summary>هل النتائج مضمونة؟</summary><p>لا. التداول في الأسواق المالية ينطوي على مخاطر كبيرة ولا يناسب الجميع، والنتائج السابقة لا تضمن المستقبل. المؤشر أداة تحليل تساعدك على اتخاذ قرار أوضح، والقرار والمسؤولية عليك.</p></details>
+   <details><summary>أنا مبتدئ، هل يناسبني؟</summary><p>المؤشر يرسم لك المناطق والإشارات والوقف والأهداف على الشارت، فيسهّل عليك القراءة. ومع ذلك يفيدك أن تفهم أساسيات مفاهيم السيولة والعرض والطلب.</p></details>
+   <details><summary>على أي أسواق وفريمات يشتغل؟</summary><p>يدعم كل الفريمات الزمنية، ويناسب السكالبينج والسوينج، وهو متوافق مع الذهب والفوركس والمؤشرات والأسهم والكريبتو. الإعداد الافتراضي هو الذهب XAUUSD على فريم 5 دقائق.</p></details>
+   <details><summary>كيف يتم التفعيل؟</summary><p>بعد إتمام الاشتراك تتواصل مع فريق الدعم وترسل اسم حسابك في TradingView، ثم يتم تفعيل المؤشر على حسابك لتضيفه إلى الشارت.</p></details>
+   <details><summary>وش الفرق بين الباقات؟</summary><p>المؤشر نفسه والمزايا نفسها في كل الباقات. الفرق في مدة الاشتراك وسعر الشهر الفعلي: كلما طالت المدة نزل سعر الشهر. باقة مدى الحياة دفعة واحدة بدون تجديد.</p></details>
+   <details><summary>وش معنى «مدى الحياة»؟</summary><p>هي دفعة واحدة بدون تجديد. وبحسب شروط الموقع، الخدمة متاحة طالما منصة تريدينزا تعمل، ولا تتحمل المنصة مسؤولية توقفها مستقبلًا. نقولها لك بوضوح قبل ما تشتري.</p></details>
+   <details><summary>أقدر أبدأ بباقة أقصر وأرقّي بعدين؟</summary><p>أكيد. تقدر تبدأ بباقة الشهر لتجرب المؤشر على شارتك، وفي أي وقت تقدر تشترك لمدة أطول.</p></details>
+   <details><summary>كيف أتواصل معكم؟</summary><p>أسرع طريقة عبر واتساب، اضغط الزر وتوصل مباشرة لفريقنا.</p><p style="padding-top:0"><a class="wa" href="https://wa.me/447400751869" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.300 2.400 1.5.3.1.5.1.7-.1l1-1.200c.2-.3.4-.2.7-.1l1.900.9c.3.1.5.2.5.3.1.2.1.8-.100 1.300z"/></svg> تواصل عبر واتساب</a></p></details>
+  </div>
+ </div>
+</section>
+
+<!-- FINAL -->
+<section class="sec final">
+ <div class="wrap">
+  <div class="fin rv">
+   <span class="i3 i-bolt " aria-hidden="true"></span>
+   <h2>السوق ما ينتظر. خلّ الشارت <span class="g">يرسم لك الصورة</span></h2>
+   <p>بدل ما تخمّن كل صفقة، خلّ المؤشر يرسم لك السيولة والمناطق والتنبيه.</p>
+   <a class="btn btn-gold" href="https://tradenza.io/product/magicator-smc-year/" target="_blank" rel="noopener">احصل على المؤشر <svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap">
+  <div class="brand"><span class="i3 i-logo " role="img" aria-label="Tradenza"></span><span>تريدينزا · tradenza.io</span></div>
+  <p>تنبيه مهم: التداول في أسواق المال ينطوي على مخاطر كبيرة ولا يناسب جميع المستثمرين. المحتوى المعروض لأغراض تعليمية وخدمية ولا يُعد نصيحة مالية، ونتائج التداول غير مضمونة. بشراء المؤشر أنت تقر بأنك المسؤول الوحيد عن قراراتك الاستثمارية.</p>
+  <p>الدعم: <a class="em" href="https://wa.me/447400751869" target="_blank" rel="noopener" style="direction:rtl">تواصل معنا عبر واتساب</a></p>
+ </div>
+</footer>
+
+<div id="sticky"><b>Magicator SMC</b><a class="btn btn-gold" href="https://tradenza.io/product/magicator-smc-year/" target="_blank" rel="noopener">احصل عليه</a></div>
+
+<script>const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+/* reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1});
+$$('.rv').forEach(e=>io.observe(e));
+/* chart: an illustrative SELL setup (not a real price series) */
+const MOB=innerWidth<700,VB=MOB?[330,50,590,450]:[0,50,920,450],W=920,H=450,VY=50,X=i=>34+i*23.4,Y=p=>490-(p-30)*8.27;
+const CL=[36,40,38,44,49,47,53,58,55,60,57,62,59,63,66,64,69,67,71,70,66,60,55,57,52,54,57,56,50,46,41,38,34];
+const HI={16:72.4,18:72.9,20:77.5,23:59.6,27:59.2},LO={22:52.8,24:50.4,28:48.4,29:44.4,31:36.6,32:32.6};
+function chart(svg){svg.setAttribute('viewBox',VB.join(' '));
+ const ex=X(26.5);let h='<defs><linearGradient id="tpg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fe0d2" stop-opacity=".22"/><stop offset="1" stop-color="#2fe0d2" stop-opacity=".03"/></linearGradient><linearGradient id="slg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a5f" stop-opacity=".30"/><stop offset="1" stop-color="#ff5a5f" stop-opacity=".08"/></linearGradient></defs>';
+ for(let g=0;g<6;g++)h+=`<line x1="0" x2="${W}" y1="${70+g*84}" y2="${70+g*84}" stroke="rgba(255,255,255,.055)"/>`;
+ const pill=(x,y,w,t,bg,fg)=>`<g><rect x="${x}" y="${y-17}" width="${w}" height="34" rx="17" fill="${bg}"/><text x="${x+w/2}" y="${y+7}" text-anchor="middle" font-size="19" font-weight="900" fill="${fg}" font-family="Cairo">${t}</text></g>`;
+ // liquidity
+ h+=`<g class="L-liq"><rect x="${X(12)}" y="${Y(73)-12}" width="${W-X(12)}" height="24" fill="rgba(255,200,26,.16)" rx="12"/><line x1="${X(12)}" x2="${W}" y1="${Y(73)}" y2="${Y(73)}" stroke="#FFC81A" stroke-width="2.6" stroke-dasharray="9 7"/>${pill(X(12.4),Y(73)-30,128,'LIQUIDITY','#FFC81A','#1a1300')}
+  <circle cx="${X(20)}" cy="${Y(77.5)}" r="8" fill="none" stroke="#FFC81A" stroke-width="3"/>${pill(X(20)+16,Y(77.5)-2,138,'Liquidity Sweep','rgba(255,200,26,.16)','#FFC81A')}</g>`;
+ // order block
+ const ox=X(23)-10,oy=Y(59.6),oh=Y(54.4)-Y(59.6);
+ h+=`<g class="L-ob"><rect x="${ox}" y="${oy}" width="${W-ox}" height="${oh}" fill="rgba(255,200,26,.14)" stroke="#FFC81A" stroke-width="2" stroke-dasharray="8 6" rx="6"/>
+  ${[0,1,2,3,4].map(k=>{const bh=[10,20,30,17,11][k];return`<rect x="${ox+10+k*13}" y="${oy+oh-6-bh}" width="8" height="${bh}" rx="2" fill="#FFC81A" opacity=".85"/>`}).join('')}
+  ${pill(X(28.6),oy+oh+19,150,'Volumetric OB','rgba(255,200,26,.18)','#FFC81A')}</g>`;
+ // trade
+ const yE=Y(57.5),yS=Y(62),yT=[Y(50),Y(45),Y(39)];
+ h+=`<g class="L-tr"><rect x="${ex}" y="${yS}" width="${W-ex}" height="${yE-yS}" fill="url(#slg)"/><rect x="${ex}" y="${yE}" width="${W-ex}" height="${yT[2]-yE}" fill="url(#tpg)"/>
+  <line x1="${ex}" x2="${W}" y1="${yS}" y2="${yS}" stroke="#ff5a5f" stroke-width="2.6" stroke-dasharray="8 6"/>
+  ${[['TP1',0,'#5bd6e8'],['TP2',1,'#2fe0d2'],['TP3',2,'#8cf5ec']].map(t=>`<line x1="${ex}" x2="${W}" y1="${yT[t[1]]}" y2="${yT[t[1]]}" stroke="${t[2]}" stroke-width="2.4" stroke-dasharray="8 6"/>${pill(W-92,yT[t[1]],84,t[0],t[2],'#031013')}`).join('')}
+  <line x1="${ex}" x2="${W}" y1="${yE}" y2="${yE}" stroke="#fff" stroke-width="2.6"/>${pill(W-104,yE,96,'ENTRY','#fff','#031013')}${pill(W-92,yS,84,'SL','#ff5a5f','#fff')}</g>`;
+ // candles
+ CL.forEach((cl,i)=>{const op=i?CL[i-1]:35,up=cl>=op,col=up?'#2fe0d2':'#ff5a5f';
+  const hi=HI[i]??Math.max(op,cl)+1.5+(i%3)*.5,lo=LO[i]??Math.min(op,cl)-1.3-(i%2)*.7;
+  h+=`<g class="cd ${up?'up':'dn'}"><line x1="${X(i)}" x2="${X(i)}" y1="${Y(hi)}" y2="${Y(lo)}" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/><rect x="${X(i)-6.5}" y="${Y(Math.max(op,cl))}" width="13" height="${Math.max(4,Math.abs(Y(op)-Y(cl)))}" rx="2.5" fill="${col}"/></g>`});
+ // structure
+ const yh=Y(52.8);
+ h+=`<g class="L-ms"><line x1="${X(22)}" x2="${X(24.4)}" y1="${yh}" y2="${yh}" stroke="#fff" stroke-width="2.6" stroke-dasharray="4 5"/>
+  <circle cx="${X(22)}" cy="${yh}" r="6.5" fill="#031013" stroke="#fff" stroke-width="3"/>
+  ${pill(X(23)-45,yh+44,90,'ChoCh','#fff','#031013')}
+  <circle cx="${X(23)}" cy="${Y(59.6)}" r="6.5" fill="#031013" stroke="#fff" stroke-width="3"/>${pill(X(23)-24,Y(59.6)-34,48,'LH','rgba(255,255,255,.16)','#fff')}
+  <line x1="${X(28)}" x2="${X(29.6)}" y1="${Y(48.4)}" y2="${Y(48.4)}" stroke="#fff" stroke-width="2.6" stroke-dasharray="4 5" opacity=".0"/></g>`;
+ svg.innerHTML=h;
+ $$('.cd',svg).forEach(g=>{g.style.transformBox='fill-box';g.style.transformOrigin='center bottom'});
+ $$('.cd.up',svg).forEach(g=>g.style.filter='drop-shadow(0 0 5px rgba(47,224,210,.55))');
+ $$('.cd.dn',svg).forEach(g=>g.style.filter='drop-shadow(0 0 5px rgba(255,90,95,.45))');
+ // position bell overlays
+ $$('.bellpin',svg.parentNode).forEach(b=>{b.style.left=((X(+b.dataset.x)-VB[0])/VB[2]*100)+'%';b.style.top=((Y(+b.dataset.y)-VB[1])/VB[3]*100)+'%'});
+ return svg}
+function play(svg){
+ $$('.cd',svg).forEach((g,i)=>g.animate([{transform:'scaleY(0)',opacity:0},{transform:'scaleY(1.05)',opacity:1,offset:.7},{transform:'scaleY(1)',opacity:1}],{duration:320,delay:i*38,easing:'ease-out',fill:'backwards'}));
+ ['liq','ob','ms','tr'].forEach((k,j)=>{const g=$('.L-'+k,svg);if(g)g.animate([{opacity:0},{opacity:1}],{duration:500,delay:1000+j*420,fill:'backwards'})});
+ const b=$('.bellpin',svg.parentNode);if(b)b.animate([{opacity:0},{opacity:1}],{duration:500,delay:2700,fill:'backwards'})}
+const heroC=chart($('#chart-hero')),mainC=chart($('#chart-main'));
+const pio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){play(e.target);pio.unobserve(e.target)}}),{threshold:.3});
+[heroC,mainC].forEach(s=>pio.observe(s));
+$$('#layers .layer').forEach(b=>b.addEventListener('click',()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);
+ $$('.L-'+b.dataset.l,$('#cv-main')).forEach(g=>{g.style.transition='opacity .3s';g.style.opacity=on?1:0})}));
+/* nav + sticky */
+const secs=$$('#navl a').map(a=>[a,$(a.getAttribute('href'))]).filter(x=>x[1]);
+const sticky=$('#sticky');
+function onScroll(){const y=scrollY+120;secs.forEach(([a,s])=>a.classList.toggle('on',y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight));
+ const pl=$('#plans').getBoundingClientRect();sticky.classList.toggle('show',scrollY>600&&!(pl.top<innerHeight*.7&&pl.bottom>innerHeight*.2))}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+</script></body></html>
